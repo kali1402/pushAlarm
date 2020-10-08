@@ -1,71 +1,69 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
-import { Notifications } from 'expo';
-import * as Permissions from 'expo-permissions';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
+import { Notifications } from "expo";
+import * as Permissions from "expo-permissions";
+import axios from "axios";
 
-const PUSH_REGISTRATION_ENDPOINT = 'http://b95627dd84cf.ngrok.io/token';
-const MESSAGE_ENPOINT = 'http://b95627dd84cf.ngrok.io/message';
+const PUSH_REGISTRATION_ENDPOINT = "http://1379bd963ad5.ngrok.io/token";
+const MESSAGE_ENPOINT = "http://1379bd963ad5.ngrok.io/message";
 
 export default function App() {
-
   const [state, setState] = useState({
     Notifications: null,
-    messageText: ''
+    messageText: "",
   });
 
   const registerForPushNotificationsAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-    if (status !== 'granted') {
+
+    if (status !== "granted") {
       return;
     }
     let token = await Notifications.getExpoPushTokenAsync();
 
     return axios.post(PUSH_REGISTRATION_ENDPOINT, {
       token: {
-        value: token
+        value: token,
       },
       user: {
-        username: 'kali',
-        name: 'pushapp'
-      }
+        username: "kali",
+        name: "pushapp",
+      },
     });
-    const notificationSubscription = Notifications.addListener(handleNotification);
-  }
 
-  const handleNotification = (Notification) => {
-    setState({ Notification });
-  }
+    const notificationSubscription = Notifications.addListener(handleNotification);
+  };
+
+  const handleNotification = (notification) => {
+    setState({ notification });
+  };
+
+  const handleChangeText = (text) => {
+    setState({ messageText: text });
+  };
+
+  const sendMessage = async () => {
+    axios.post(MESSAGE_ENPOINT, {
+      message: state.messageText,
+    });
+    setState({ messageText: "" });
+  };
 
   useEffect(() => {
     registerForPushNotificationsAsync();
   }, []);
 
-  const handleChangeText = (text) => {
-    setState({ messageText: text });
-  }
-
-  const sendMessage = async () => {
-    axios.post(MESSAGE_ENPOINT, {
-      message: state.messageText
-    });
-    setState({ messageText: '' });
-  }
-
   return (
     <View style={styles.container}>
       <TextInput
         value={state.messageText}
-        onChange={handleChangeText}
-        style={styles.textInput}
+        onChangeText={handleChangeText}
+        style={styles.TextInput}
       />
-      <TouchableOpacity
-        style={styles.button}
-        onPress={sendMessage}>
-        <Text style={styles.buttonText}>send</Text>
+      <TouchableOpacity style={styles.button} onPress={sendMessage}>
+        <Text style={styles.buttonText}>Send</Text>
       </TouchableOpacity>
-      {state.Notification ? renderNotification() : null}
+      {state.notification ? renderNotification() : null}
     </View>
   );
 }
@@ -77,10 +75,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  textInput: {
+  TextInput: {
     width: 300,
     height: 50,
-    backgroundColor: "blue",
+    backgroundColor: "silver",
   },
   button: {
     fontSize: 15,
